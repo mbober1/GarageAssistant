@@ -1,9 +1,10 @@
 #include <Arduino.h>
 #include <MQTT.h>
 #include <ESP8266WiFi.h>
-// #include <ESPhttpUpdate.h>
 #include "secrets.hpp"
-
+#include <ESP8266httpUpdate.h>
+#include <WiFiClientSecure.h>
+#include <time.h>
 
 WiFiClient wifi;
 MQTTClient mqtt;
@@ -13,15 +14,24 @@ bool stan = 0;
 char buffer[100];
 char buffer2[100];
 
-
-void connect() {
+  void connect() {
   Serial.printf("Connecting to %s ", ssid);
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(500);
   }
-  Serial.println("\nConnected to WiFi!");
+  Serial.print("\nConnected to WiFi! My IP: ");
+  Serial.println(WiFi.localIP());
+
+  configTime(3600, 0, "pool.ntp.org");  
+  time_t tnow = time(nullptr);
+  struct tm *timeinfo;
+
+  time(&tnow);
+  timeinfo = localtime(&tnow);
+  Serial.printf("%d:%d:%d %d/%d/%d\n", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, timeinfo->tm_mday, timeinfo->tm_mon, timeinfo->tm_year);
 
   Serial.printf("\nConnecting to %s", mqtt_server);
   mqtt.begin(mqtt_server, wifi);
@@ -39,35 +49,16 @@ void configure() {
   Serial.println("Configured MQTT!");
 }
 
+
 void setup() {
   Serial.begin(115200);
+  pinMode(LED_BUILTIN, OUTPUT);
   delay(1000);
   Serial.printf("Version: %d\n", LAST_BUILD_TIME);
-  pinMode(LED_BUILTIN, OUTPUT);
 
 
   connect();
   configure();
-
-
-  // t_httpUpdate_return ret = ESPhttpUpdate.update("192.168.0.2", 80, "/esp/update/arduino.php", LAST_BUILD_TIME);
-  // switch(ret) {
-  //   case HTTP_UPDATE_FAILED:
-  //       Serial.println("[update] Update failed.");
-  //       break;
-  //   case HTTP_UPDATE_NO_UPDATES:
-  //       Serial.println("[update] Update no Update.");
-  //       break;
-  //   case HTTP_UPDATE_OK:
-  //       Serial.println("[update] Update ok."); // may not be called since we reboot the ESP
-  //       break;
-  // }
-
-  Serial.println("Ready");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-
-
 }
 
 void loop() {
