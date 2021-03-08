@@ -1,13 +1,14 @@
 #include <Arduino.h>
-#include <MQTT.h>
-#include <ESP8266WiFi.h>
+#include <MQTTClient.h>
+#include <WiFi.h>
 #include "secrets.hpp"
-#include <ESP8266httpUpdate.h>
 #include <WiFiClientSecure.h>
 #include <time.h>
 
 WiFiClient wifi;
 MQTTClient mqtt;
+
+#define LED_BUILTIN 2
 
 unsigned long lastMillis = 0;
 bool stan = 0;
@@ -69,6 +70,7 @@ void loop() {
     sprintf(buffer, "homeassistant/binary_sensor/%s/car/state", mqtt_dir);
     mqtt.publish(buffer, stan ? "ON" : "OFF");
     digitalWrite(LED_BUILTIN, stan);
+    Serial.println(stan);
     stan = !stan;
     lastMillis = millis();
   }
