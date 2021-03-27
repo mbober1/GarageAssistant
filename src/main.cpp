@@ -15,7 +15,7 @@ bool stan = 0;
 char buffer[100];
 char buffer2[100];
 
-  void connect() {
+void connect() {
   Serial.printf("Connecting to %s ", ssid);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
