@@ -47,7 +47,7 @@ void myMQTT::connect(Client &_client) {
     Serial.print(".");
     delay(500);
   }
-  Serial.println("\nConnected to Home Assistant!");
+  Serial.println("\nConnected to Home Assistant!\n");
 }
 
 void myMQTT::autoStatus(bool status) {
