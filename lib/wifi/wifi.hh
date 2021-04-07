@@ -9,6 +9,7 @@ class myWifi : public WiFiSTAClass {
 public:
     myWifi(const char* ssid, const char* password);
     void connect();
+    WiFiClient client;
 };
 
 myWifi::myWifi(const char* ssid, const char* password) : ssid(ssid), password(password) {}

@@ -8,18 +8,25 @@ class myMQTT : public MQTTClient {
     const char* mqtt_pass;
     const char* mqtt_dir;
     const char* entity_name;
+    unsigned int port;
     
 
 public:
-    myMQTT(const char* project_name, const char* mqtt_server, const char* mqtt_user, const char* mqtt_pass, const char* mqtt_dir, const char* entity_name);
+    myMQTT(const char* project_name, const char* mqtt_server,  unsigned int port, const char* mqtt_user, const char* mqtt_pass, const char* mqtt_dir, const char* entity_name);
     void configure();
-    void connect();
+    void connect(Client &_client);
     
     void autoStatus(bool status);
 };
 
-myMQTT::myMQTT(const char* project_name, const char* mqtt_server, const char* mqtt_user, const char* mqtt_pass, const char* mqtt_dir, const char* entity_name) : 
-project_name(project_name), mqtt_server(mqtt_server), mqtt_user(mqtt_user), mqtt_pass(mqtt_pass), mqtt_dir(mqtt_dir), entity_name(entity_name) {}
+myMQTT::myMQTT(const char* project_name, const char* mqtt_server, unsigned int port, const char* mqtt_user, const char* mqtt_pass, const char* mqtt_dir, const char* entity_name) : 
+project_name(project_name), 
+mqtt_server(mqtt_server), 
+mqtt_user(mqtt_user), 
+mqtt_pass(mqtt_pass), 
+mqtt_dir(mqtt_dir), 
+entity_name(entity_name), 
+port(port) {}
 
 
 void myMQTT::configure() {
@@ -33,9 +40,9 @@ void myMQTT::configure() {
 }
 
   
-void myMQTT::connect() {
+void myMQTT::connect(Client &_client) {
   printf("\nConnecting to %s", this->mqtt_server);
-  // MQTTClient::begin(this->mqtt_server, wifi);
+  MQTTClient::begin(this->mqtt_server, 6969, _client);
   while (!MQTTClient::connect(this->project_name, this->mqtt_user, this->mqtt_pass)) {
     Serial.print(".");
     delay(500);
