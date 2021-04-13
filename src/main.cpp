@@ -14,26 +14,33 @@ bool stan = 0;
 
 
 void setup() {
+  
   Serial.begin(115200);
-  delay(1000);
+  pinMode(2, OUTPUT);
+  digitalWrite(2, 1);
+  delay(100);
+  digitalWrite(2, 0);
+
+  delay(100);
   Serial.printf("Version: %d\n", LAST_BUILD_TIME);
-  wifi.connect();
-  mqtt.connect(wifi.client);
-  mqtt.configure();
+  //wifi.connect();
+  //mqtt.connect(wifi.client);
+  //mqtt.configure();
   
   initSensors();
   init_RGB();
 }
 
 void loop() {
-  mqtt.loop();
+  
+  //mqtt.loop();
   delay(10);
-  show_RGB(20);
-  // int czujnik1 = espSr04.distance1_cm;
-  // int czujnik2 = espSr04.distance2_cm;
+
+  show_RGB(espSr04.distance1_cm);
+
 
   if (millis() - lastMillis > 1000) {
-    mqtt.autoStatus(stan);
+    //mqtt.autoStatus(stan);
     Serial.println(stan);
     stan = !stan;
     lastMillis = millis();
