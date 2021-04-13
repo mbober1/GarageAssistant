@@ -1,5 +1,5 @@
 #include <Adafruit_NeoPixel.h>
-#define PIN_RGB 15
+#define PIN_RGB 27
 #define NUMPIXELS 30
 
 
@@ -11,6 +11,8 @@ void init_RGB()
 
 void show_RGB(int distance)
 {
+   if(distance < 0) return;
+
    if(distance >= 200)
    {
       for(int i=0; i<NUMPIXELS; i++)
@@ -36,5 +38,4 @@ void show_RGB(int distance)
          pixels.show();
       }
    }
-   //delay(50);
 }

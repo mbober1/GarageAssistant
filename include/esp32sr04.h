@@ -7,8 +7,8 @@ struct EspSr04 {
 
   unsigned long sensor1Time;
   unsigned long sensor2Time;
-  float distance1_cm = 200;
-  float distance2_cm = 200;
+  int distance1_cm = -1;
+  int distance2_cm = -1;
   
 };
 
@@ -17,20 +17,22 @@ EspSr04 espSr04;
 void IRAM_ATTR Echo1_Callback() {
 
     if(digitalRead(ECHO1_PIN)) {
-      espSr04.distance1_cm = (micros() - espSr04.sensor1Time)/58.0;
-      if(espSr04.distance1_cm < 200)
-        Serial.println((int)espSr04.distance1_cm);
+      
+      espSr04.distance1_cm = (micros() - espSr04.sensor1Time)/58;
+      if(espSr04.distance1_cm > 200) espSr04.distance1_cm = -1;
     }
+
     else espSr04.sensor1Time = micros();
 }
 
 void IRAM_ATTR Echo2_Callback() {
 
     if(digitalRead(ECHO2_PIN)) {
+
       espSr04.distance2_cm = (micros() - espSr04.sensor2Time)/58.0;
-      if(espSr04.distance2_cm < 200)
-        Serial.println((int)espSr04.distance2_cm);
+      if(espSr04.distance2_cm > 200)  espSr04.distance1_cm = -1;
     }
+
     else espSr04.sensor2Time = micros();
 }
 
