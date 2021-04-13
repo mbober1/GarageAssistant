@@ -36,5 +36,5 @@ void show_RGB(int distance)
          pixels.show();
       }
    }
-   \\delay(50);
+   //delay(50);
 }
