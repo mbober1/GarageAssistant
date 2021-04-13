@@ -3,6 +3,7 @@
 #include <wifi.hh>
 #include <mqtt.hh>
 #include "esp32sr04.h"
+#include "LedRGB.h"
 
 myWifi wifi(ssid, password);
 myMQTT mqtt(project_name, mqtt_server, mqtt_port, mqtt_user, mqtt_pass, mqtt_dir, entity_name);
@@ -21,12 +22,13 @@ void setup() {
   mqtt.configure();
   
   initSensors();
+  init_RGB();
 }
 
 void loop() {
   mqtt.loop();
   delay(10);
-  
+  show_RGB(20);
   // int czujnik1 = espSr04.distance1_cm;
   // int czujnik2 = espSr04.distance2_cm;
 
