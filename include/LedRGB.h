@@ -17,7 +17,7 @@ void show_RGB(int distance)
    {
       for(int i=0; i<NUMPIXELS; i++)
       {
-         pixels.setPixelColor(i, pixels.Color(0, 255, 0));
+         pixels.setPixelColor(i, pixels.Color(0, 255/2, 0));
          pixels.show();
       }
    }
@@ -25,7 +25,7 @@ void show_RGB(int distance)
    {
       for(int i=0; i<NUMPIXELS; i++)
       {
-         pixels.setPixelColor(i, pixels.Color(255, 0, 0));
+         pixels.setPixelColor(i, pixels.Color(255/2, 0, 0));
          pixels.show();
       }
    }
@@ -34,7 +34,7 @@ void show_RGB(int distance)
       int k = (int) distance*1.25;
       for(int i=0; i<NUMPIXELS; i++)
       {
-         pixels.setPixelColor(i, pixels.Color(255-k, k, 0));
+         pixels.setPixelColor(i, pixels.Color((255-k)/2, k/2, 0));
          pixels.show();
       }
    }

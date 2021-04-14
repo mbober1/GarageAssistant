@@ -18,29 +18,26 @@ void setup() {
   Serial.begin(115200);
   pinMode(2, OUTPUT);
   digitalWrite(2, 1);
-  delay(100);
-  digitalWrite(2, 0);
 
-  delay(100);
   Serial.printf("Version: %d\n", LAST_BUILD_TIME);
-  //wifi.connect();
+  wifi.connect();
   //mqtt.connect(wifi.client);
   //mqtt.configure();
   
+  digitalWrite(2, 0);
+
   initSensors();
   init_RGB();
 }
 
 void loop() {
   
-  //mqtt.loop();
-  delay(10);
+  mqtt.loop();
 
   show_RGB(espSr04.distance1_cm);
 
-
   if (millis() - lastMillis > 1000) {
-    //mqtt.autoStatus(stan);
+    mqtt.autoStatus(stan);
     Serial.println(stan);
     stan = !stan;
     lastMillis = millis();
