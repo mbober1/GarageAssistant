@@ -3,48 +3,28 @@
 #define ECHO2_PIN 14
 #define TRIG_PIN 33
 
-struct EspSr04 {
+extern void IRAM_ATTR echoCallback();
 
-  unsigned long sensor1Time;
-  unsigned long sensor2Time;
-  int distance1_cm = -1;
-  int distance2_cm = -1;
-  
+
+class Esp32sr04
+{
+public:
+  unsigned long sensorTime;
+  int distance = -1;
+  int echoPin, trigPin;
+
+  Esp32sr04(const int &echoPin, const int &trigPin);
+  ~Esp32sr04();
 };
 
-EspSr04 espSr04;
 
-void IRAM_ATTR Echo1_Callback() {
-
-    if(digitalRead(ECHO1_PIN)) {
-      
-      espSr04.distance1_cm = (micros() - espSr04.sensor1Time)/58;
-      if(espSr04.distance1_cm > 200) espSr04.distance1_cm = -1;
-    }
-
-    else espSr04.sensor1Time = micros();
+Esp32sr04::Esp32sr04(const int &echoPin, const int &trigPin) : echoPin(echoPin), trigPin(trigPin)
+{
+  pinMode(this->echoPin, INPUT_PULLUP);
+  attachInterrupt(this->echoPin, echoCallback, CHANGE);
+  ledcAttachPin(this->trigPin, PWM_CHANNEL_TRIG);
+  ledcSetup(PWM_CHANNEL_TRIG, 5, 15);
+  ledcWrite(PWM_CHANNEL_TRIG, 2);
 }
 
-void IRAM_ATTR Echo2_Callback() {
-
-    if(digitalRead(ECHO2_PIN)) {
-
-      espSr04.distance2_cm = (micros() - espSr04.sensor2Time)/58.0;
-      if(espSr04.distance2_cm > 200)  espSr04.distance1_cm = -1;
-    }
-
-    else espSr04.sensor2Time = micros();
-}
-
-void initSensors() {
-
-    pinMode(ECHO1_PIN, INPUT_PULLUP);
-    pinMode(ECHO2_PIN, INPUT_PULLUP);
-
-    attachInterrupt(ECHO1_PIN, Echo1_Callback, CHANGE);
-    attachInterrupt(ECHO2_PIN, Echo2_Callback, CHANGE);
-
-    ledcAttachPin(TRIG_PIN, PWM_CHANNEL_TRIG);
-    ledcSetup(PWM_CHANNEL_TRIG, 5, 15);
-    ledcWrite(PWM_CHANNEL_TRIG, 2);
-}
+Esp32sr04::~Esp32sr04() {}
