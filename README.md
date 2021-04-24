@@ -7,7 +7,7 @@ W dzisiejszych czasach wysoka urbanizacja i ciągłe zagęszczanie zabudowań ma
 - [X] Łączność z internetem poprzez WiFi
 - [X] Integracja z Home Assistant
 - [X] Mierzenie odległości wjeżdzającego samochodu
-- [ ] Wizualne informowanie o pozostałej odległości 
+- [X] Wizualne informowanie o pozostałej odległości 
 - [ ] Dzwiękowe informowanie o pozostałej odległości 
 - [ ] Wykrywanie orientacji auta w garażu
 
