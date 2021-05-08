@@ -19,6 +19,7 @@ const ledc_channel_t SENSOR_PWM = LEDC_CHANNEL_1;
 const uint maxDistance = 20;
 const uint ledCount = 8;
 const gpio_num_t ledPin = GPIO_NUM_12;
+const ledc_channel_t ledPwmChannel = LEDC_CHANNEL_0;
 
 QueueHandle_t distanceQueue;
 
@@ -27,7 +28,7 @@ int stan = 0;
 
 
 static void ledTask(void*) {
-  SmartLed leds(LED_WS2812B, ledCount, ledPin, 0);
+  SmartLed leds(LED_WS2812B, ledCount, ledPin, ledPwmChannel);
   uint distance;
 
   while(1) {
