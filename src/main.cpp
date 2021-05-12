@@ -62,8 +62,8 @@ void setup() {
   distance.configure();
 
   distanceQueue = xQueueCreate(5, sizeof(uint));
-  // xTaskCreate(ledTask, "Ledy_Task", 4096, nullptr, 5, NULL); 
-  // Ultrasonic sensor(TRIG, ECHO, SENSOR_PWM);
+  xTaskCreate(ledTask, "Ledy_Task", 4096, nullptr, 5, NULL); 
+  Ultrasonic sensor(TRIG, ECHO, SENSOR_PWM);
 }
 
 
