@@ -8,7 +8,7 @@
 #include <mqtt.hh>
 
 myWifi wifi(ssid, password);
-myMQTT mqtt(project_name, mqtt_server, mqtt_port, mqtt_user, mqtt_pass, mqtt_dir, entity_name);
+myMQTT mqtt(project_name, mqtt_server, mqtt_port, mqtt_user, mqtt_pass, mqtt_dir);
 
 //ultrasonic sensor config
 const gpio_num_t TRIG = GPIO_NUM_4;
@@ -52,19 +52,21 @@ void setup() {
   Serial.begin(115200);
   Serial.printf("Version: %d\n", LAST_BUILD_TIME);
   wifi.connect();
-  // mqtt.connect(wifi.client);
-  // mqtt.configure();
+  mqtt.connect(wifi.client);
+  mqtt.configure(EntityType::binarySensor, "Auto", "state");
+  mqtt.configure(EntityType::sensor, "distance", "value");
+
   distanceQueue = xQueueCreate(5, sizeof(uint));
-  xTaskCreate(ledTask, "Ledy_Task", 4096, nullptr, 5, NULL); 
-  Ultrasonic sensor(TRIG, ECHO, SENSOR_PWM);
+  // xTaskCreate(ledTask, "Ledy_Task", 4096, nullptr, 5, NULL); 
+  // Ultrasonic sensor(TRIG, ECHO, SENSOR_PWM);
 }
 
 
 
 
 void loop() {
-  // mqtt.loop();
-  // mqtt.autoStatus(stan);
+  mqtt.loop();
+  mqtt.autoStatus(stan);
   stan = !stan;
   printf("MQTT auto status %d\n", stan);
   delay(1000);
