@@ -23,8 +23,12 @@ const ledc_channel_t ledPwmChannel = LEDC_CHANNEL_0;
 
 QueueHandle_t distanceQueue;
 
+Entity autoStatus(EntityType::binarySensor, std::string("Auto"), std::string("state"), &mqtt);
+Entity distance(EntityType::sensor, "distance", "value", &mqtt);
+
 
 int stan = 0;
+int val = 0;
 
 
 static void ledTask(void*) {
@@ -53,8 +57,9 @@ void setup() {
   Serial.printf("Version: %d\n", LAST_BUILD_TIME);
   wifi.connect();
   mqtt.connect(wifi.client);
-  mqtt.configure(EntityType::binarySensor, "Auto", "state");
-  mqtt.configure(EntityType::sensor, "distance", "value");
+
+  autoStatus.configure();
+  distance.configure();
 
   distanceQueue = xQueueCreate(5, sizeof(uint));
   // xTaskCreate(ledTask, "Ledy_Task", 4096, nullptr, 5, NULL); 
@@ -66,8 +71,11 @@ void setup() {
 
 void loop() {
   mqtt.loop();
-  mqtt.autoStatus(stan);
+  autoStatus.update(stan ? "ON" : "OFF");
   stan = !stan;
   printf("MQTT auto status %d\n", stan);
+
+  distance.update(val++);
+
   delay(1000);
 }

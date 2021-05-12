@@ -1,5 +1,5 @@
 #include <MQTTClient.h>
-
+#include <string>
 
 enum class EntityType {
   sensor,
@@ -13,17 +13,14 @@ class myMQTT : public MQTTClient {
     const char* mqtt_user;
     const char* mqtt_pass;
     const char* mqtt_dir;
-    // const char* entity_name;
     unsigned int port;
     
-    std::string getTypeName(EntityType type);
 
 public:
     myMQTT(const char* project_name, const char* mqtt_server,  unsigned int port, const char* mqtt_user, const char* mqtt_pass, const char* mqtt_dir);
-    void configure(EntityType type, std::string entity_name, std::string data_name);
+    void configure(std::string type, std::string entity_name, std::string data_name, std::string topic);
     void connect(Client &_client);
-    
-    void autoStatus(bool status);
+    const char* getMqttDir();
 };
 
 myMQTT::myMQTT(const char* project_name, const char* mqtt_server, unsigned int port, const char* mqtt_user, const char* mqtt_pass, const char* mqtt_dir) : 
@@ -34,36 +31,15 @@ mqtt_pass(mqtt_pass),
 mqtt_dir(mqtt_dir), 
 port(port) {}
 
+const char* myMQTT::getMqttDir() { return this->mqtt_dir; }
 
-std::string myMQTT::getTypeName(EntityType type) {
-  switch (type)
-  {
-  case EntityType::sensor:
-    return std::string("sensor");
-    break;
-
-  case EntityType::binarySensor:
-    return std::string("binary_sensor");
-    break;
-  
-  default:
-    printf("Unkown mqtt type\n");
-    return std::string();
-    break;
-  }
-}
-
-void myMQTT::configure(EntityType type, std::string entity_name, std::string data_name) {
-  std::string topic("homeassistant/");
-  topic += this->getTypeName(type);
-  topic.append("/");
-  topic += this->mqtt_dir;
-  topic.append("/car/config");
+void myMQTT::configure(std::string type, std::string entity_name, std::string data_name, std::string topic) {
+  topic.append("config");
 
   std::string payload("{\"name\": \"");
   payload.append(entity_name);
   payload.append("\", \"state_topic\": \"homeassistant/");
-  payload += this->getTypeName(type);
+  payload.append(type);
   payload.append("/");
   payload.append(this->mqtt_dir);
   payload.append("/car/");
@@ -86,23 +62,78 @@ void myMQTT::connect(Client &client) {
   Serial.println("\nConnected to Home Assistant!\n");
 }
 
-void myMQTT::autoStatus(bool status) {
-  char buffer[100];
-  sprintf(buffer, "homeassistant/binary_sensor/%s/car/state", this->mqtt_dir);
-  publish(buffer, status ? "ON" : "OFF");
+
+class Entity {
+  EntityType type;
+  std::string name;
+  std::string valueDir;
+  myMQTT *mqtt;
+
+  std::string getTypeName(EntityType type);
+
+  public:
+    Entity(EntityType type, std::string name, std::string valueDir, myMQTT *mqtt);
+    void configure();
+    void update(std::string data);
+    void update(int data);
+    std::string getTopic();
+
+};
+
+Entity::Entity(EntityType type, std::string name, std::string valueDir, myMQTT *mqtt) :
+type(type),
+name(name),
+valueDir(valueDir),
+mqtt(mqtt) {}
+
+std::string Entity::getTopic() {
+  std::string topic("homeassistant/");
+  topic += this->getTypeName(this->type);
+  topic.append("/");
+  topic.append(mqtt->getMqttDir());
+  topic.append("/car/");
+  return topic;
 }
 
-// class Entity : public myMQTT {
-//   EntityType type;
-//   std::string name;
-//   std::string valueDir;
 
-//   public:
-//     Entity(EntityType type, std::string name, std::string valueDir);
-// };
+void Entity::configure() {
+  this->mqtt->configure(this->getTypeName(this->type), this->name, this->valueDir, this->getTopic());
+}
 
-// Entity::Entity(EntityType type, std::string name, std::string valueDir) :
-//   type(type),
-//   name(name),
-//   valueDir(valueDir) {}
+void Entity::update(std::string data) {
+  std::string topic = this->getTopic();
+  topic.append(this->valueDir);
+
+  this->mqtt->publish(topic.c_str(), data.c_str());
+}
+
+void Entity::update(int data) {
+  std::string topic = this->getTopic();
+  topic.append(this->valueDir);
+
+  this->mqtt->publish(topic.c_str(), String(data));
+}
+
+
+
+
+std::string Entity::getTypeName(EntityType type) {
+  switch (type)
+  {
+  case EntityType::sensor:
+    return std::string("sensor");
+    break;
+
+  case EntityType::binarySensor:
+    return std::string("binary_sensor");
+    break;
+  
+  default:
+    printf("Unkown mqtt type\n");
+    return std::string();
+    break;
+  }
+}
+
+
 
