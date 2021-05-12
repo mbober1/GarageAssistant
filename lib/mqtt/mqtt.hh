@@ -50,7 +50,7 @@ class Entity {
   String name;
   myMQTT *mqtt;
 
-  String getTypeName(EntityType type);
+  String getTypeName();
 
   public:
     Entity(EntityType type, String name, myMQTT *mqtt);
@@ -70,7 +70,7 @@ mqtt(mqtt) {}
 
 String Entity::getTopic() {
   String topic("homeassistant/");
-  topic += this->getTypeName(this->type);
+  topic += this->getTypeName();
   topic += "/";
   topic += mqtt->getMqttDir();
   topic += "/car/";
@@ -82,7 +82,7 @@ String Entity::getPayload() {
   String payload("{\"name\": \"");
   payload += this->name;
   payload += "\", \"state_topic\": \"homeassistant/";
-  payload += this->getTypeName(this->type);
+  payload += this->getTypeName();
   payload += "/";
   payload += mqtt->getMqttDir();
   payload += "/car/";
@@ -118,8 +118,8 @@ void Entity::update(int data) {
 
 
 
-String Entity::getTypeName(EntityType type) {
-  switch (type)
+String Entity::getTypeName() {
+  switch (this->type)
   {
   case EntityType::sensor:
     return String("sensor");
