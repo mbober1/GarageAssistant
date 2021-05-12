@@ -23,8 +23,8 @@ const ledc_channel_t ledPwmChannel = LEDC_CHANNEL_0;
 
 QueueHandle_t distanceQueue;
 
-Entity autoStatus(EntityType::binarySensor, "Auto", "state", &mqtt);
-Entity distance(EntityType::sensor, "distance", "value", &mqtt);
+Entity autoStatus(EntityType::binarySensor, "Auto", &mqtt);
+Entity distance(EntityType::sensor, "distance", &mqtt);
 
 
 int stan = 0;
