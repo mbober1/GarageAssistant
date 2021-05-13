@@ -105,7 +105,7 @@ String Entity::getPayload() {
   path += Entity::addParamether(this->name);
   path += Entity::addParamether("value");
 
-  payload += Entity::addVariable("name", this->name, ", ");
+  payload += Entity::addVariable("unique_id", this->name, ", ");
   payload += Entity::addVariable("state_topic", path);
   payload += "}";
   return payload;
