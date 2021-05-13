@@ -20,7 +20,7 @@ QueueHandle_t secondQueue;
 
 Entity statusEntity(EntityType::binarySensor, "Auto", &mqtt);
 Entity distanceEntity(EntityType::sensor, "Distance", &mqtt);
-Entity secondDistEntity(EntityType::sensor, "SecondDistance", &mqtt);
+//Entity secondDistEntity(EntityType::sensor, "SecondDistance", &mqtt);
 
 bool stan = false;
 uint distance;
