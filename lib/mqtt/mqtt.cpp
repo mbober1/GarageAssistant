@@ -1,26 +1,4 @@
-#include <MQTTClient.h>
-#include <string>
-
-enum class EntityType {
-  sensor,
-  binarySensor
-};
-
-
-class myMQTT : public MQTTClient {
-    const char* project_name;
-    const char* mqtt_server;
-    const char* mqtt_user;
-    const char* mqtt_pass;
-    const char* mqtt_dir;
-    unsigned int port;
-    
-public:
-    myMQTT(const char* project_name, const char* mqtt_server,  unsigned int port, const char* mqtt_user, const char* mqtt_pass, const char* mqtt_dir);
-    void connect(Client &_client);
-    const char* getMqttDir();
-};
-
+#include <mqtt.hpp>
 
 myMQTT::myMQTT(const char* project_name, const char* mqtt_server, unsigned int port, const char* mqtt_user, const char* mqtt_pass, const char* mqtt_dir) : 
 project_name(project_name), 
@@ -36,7 +14,7 @@ const char* myMQTT::getMqttDir() { return this->mqtt_dir; }
   
 void myMQTT::connect(Client &client) {
   printf("\nConnecting to %s\n", this->mqtt_server);
-  MQTTClient::begin(this->mqtt_server, mqtt_port, client);
+  MQTTClient::begin(this->mqtt_server, this->port, client);
   while (!MQTTClient::connect(this->project_name, this->mqtt_user, this->mqtt_pass)) {
     Serial.print(".");
     delay(500);
@@ -45,24 +23,8 @@ void myMQTT::connect(Client &client) {
 }
 
 
-class Entity {
-  EntityType type;
-  String name, data;
-  myMQTT *mqtt;
-
-  String getTypeName();
-  static String addParamether(String data);
-  static String addVariable(String name, String data, String separator);
 
 
-  public:
-    Entity(EntityType type, String name, myMQTT *mqtt);
-    void configure();
-    void update(String data);
-    void update(int data);
-    String getTopic();
-    String getPayload();
-};
 
 
 Entity::Entity(EntityType type, String name, myMQTT *mqtt) :
@@ -76,6 +38,7 @@ String Entity::addParamether(String data) {
   tmp += data;
   return tmp;
 }
+
 
 String Entity::addVariable(String name, String data, String separator = "") {
   String tmp("\"");
@@ -138,8 +101,6 @@ void Entity::update(int newData) {
 }
 
 
-
-
 String Entity::getTypeName() {
   switch (this->type)
   {
@@ -157,6 +118,3 @@ String Entity::getTypeName() {
     break;
   }
 }
-
-
-
