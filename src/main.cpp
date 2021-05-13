@@ -17,7 +17,7 @@ myMQTT mqtt(project_name, mqtt_server, mqtt_port, mqtt_user, mqtt_pass, mqtt_dir
 
 QueueHandle_t distanceQueue;
 
-Entity statusEntity(EntityType::binarySensor, "Auto", &mqtt);
+Entity statusEntity(EntityType::binarySensor, "AutoStatus", &mqtt);
 Entity distanceEntity(EntityType::sensor, "Distance", &mqtt);
 
 bool stan = false;
@@ -27,7 +27,7 @@ uint distance;
 
 static void ledTask(void*) {
   SmartLed leds(LED_WS2812B, ledCount, ledPin, ledPwmChannel);
-  uint lastDistance;
+  uint lastDistance = 0;
   unsigned long noDiffTimer = millis();
 
   /************************************************/
@@ -64,7 +64,7 @@ static void ledTask(void*) {
           statusEntity.update("ON");
           printf("MQTT auto status ON\n");
         }
-        if(stan && percentage > 90) {
+        if(stan && percentage > 85) {
 
           statusEntity.update("OFF");
           printf("MQTT auto status OFF\n");
@@ -135,7 +135,7 @@ static void mqttTask(void*) {
   while(1) {
 
     mqtt.loop();
-    delay(1000);
+    delay(330);
     distanceEntity.update(distance);
   }
 }
@@ -155,6 +155,4 @@ void setup() {
   Ultrasonic sensor(TRIG, ECHO, SENSOR_PWM);
 }
 
-/************************************************************************************/
-
-void loop() { ; }
+void loop() {}
