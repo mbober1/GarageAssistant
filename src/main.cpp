@@ -76,19 +76,19 @@ static void ledTask(void*) {
           stan = false;
         }
 
-        uint k = darkModeBrightness*percentage/100;
+        uint8_t k = darkModeBrightness*percentage/100;
 
-        for(uint i = 0; i < ledCount; ++i) {
-          leds[i] = Rgb{(activeLeds<=i)?(uint8_t)0:(uint8_t)darkModeBrightness-k,(activeLeds<=i)?(uint8_t)0:(uint8_t)k,0};
+        for(uint8_t i = 0; i < ledCount; ++i) {
+          leds[i] = Rgb{(activeLeds<=i)?(uint8_t)0:(uint8_t)(darkModeBrightness-k),(activeLeds<=i)?(uint8_t)0:(uint8_t)k,0};
         }
 
       }
       else {
 
-        uint k = activeBrightness*percentage/100;
+        uint8_t k = activeBrightness*percentage/100;
 
-        for(uint i = 0; i < ledCount; ++i) {
-          leds[i] = Rgb{(activeLeds<=i)?(uint8_t)0:(uint8_t)activeBrightness-k,(activeLeds<=i)?(uint8_t)0:(uint8_t)k,0};
+        for(uint8_t i = 0; i < ledCount; ++i) {
+          leds[i] = Rgb{(activeLeds<=i)?(uint8_t)0:(uint8_t)(activeBrightness-k),(activeLeds<=i)?(uint8_t)0:(uint8_t)k,0};
         }
 
       }
@@ -144,7 +144,7 @@ static void mqttTask(void*) {
     mqtt.loop();
     delay(300);
     distanceEntity.update(distance);
-    //secondDistEntity.update(secondDistance);
+    secondDistEntity.update(secondDistance);
     Serial.printf("Main sensor: %d\n", distance);
     Serial.printf("Second sensor: %d\n", secondDistance);
   }
@@ -160,9 +160,9 @@ void setup() {
   distanceQueue = xQueueCreate(5, sizeof(uint));
   secondQueue = xQueueCreate(5, sizeof(uint));
 
-  xTaskCreate(ledTask, "Ledy_Task", 4096, nullptr, 3, NULL);
-  xTaskCreate(buzzerTask, "Buzzer_Task", 4096, nullptr, 4, NULL);
-  xTaskCreate(mqttTask, "Mqtt_Task", 4096, nullptr, 4, NULL);
+  xTaskCreate(ledTask, "Ledy_Task", 4096, nullptr, 1, NULL);
+  xTaskCreate(buzzerTask, "Buzzer_Task", 1024, nullptr, 6, NULL);
+  xTaskCreate(mqttTask, "Mqtt_Task", 4096, nullptr, 6, NULL);
 
   Ultrasonic sensor(TRIG, ECHO, SENSOR_PWM);
   Ultrasonic secondSensor(secondEcho);

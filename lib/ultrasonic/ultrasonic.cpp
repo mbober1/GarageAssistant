@@ -28,7 +28,7 @@ static void IRAM_ATTR triggerInterrupt(void* arg)
         else {
 
             errorDistaneCounter++;
-            if(errorDistaneCounter > 30) {
+            if(errorDistaneCounter > 10) {
                 distance = 200;
                 xQueueSendToBack(distanceQueue, &distance, 0);
             }
@@ -55,7 +55,7 @@ static void IRAM_ATTR secondInterrupt(void* arg)
         else {
 
             secondErrorDistaneCounter++;
-            if(secondErrorDistaneCounter > 30) {
+            if(secondErrorDistaneCounter > 10) {
                 distance = 200;
                 xQueueSendToBack(secondQueue, &distance, 0);
             }

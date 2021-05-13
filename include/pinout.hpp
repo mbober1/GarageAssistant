@@ -12,8 +12,8 @@ const ledc_channel_t SENSOR_PWM = LEDC_CHANNEL_0;
 const uint maxDistance = 200;
 const uint ledCount = 30;
 const gpio_num_t ledPin = GPIO_NUM_27;
-const int darkModeBrightness = 7;
-const int activeBrightness = 127;
+const uint8_t darkModeBrightness = 7;
+const uint8_t activeBrightness = 127;
 const ledc_channel_t ledPwmChannel = LEDC_CHANNEL_1;
 
 const gpio_num_t simpleLed = GPIO_NUM_25;
