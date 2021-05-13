@@ -9,6 +9,9 @@
 #include <wifi.hh>
 #include <mqtt.hh>
 
+const ledc_channel_t SENSOR_PWM = LEDC_CHANNEL_0;
+const ledc_channel_t ledPwmChannel = LEDC_CHANNEL_1;
+
 myWifi wifi(ssid, password);
 myMQTT mqtt(project_name, mqtt_server, mqtt_port, mqtt_user, mqtt_pass, mqtt_dir);
 
@@ -18,12 +21,12 @@ Entity statusEntity(EntityType::binarySensor, "Auto", &mqtt);
 Entity distanceEntity(EntityType::sensor, "Distance", &mqtt);
 
 bool stan = false;
+uint distance;
 
 /************************************************************************************/
 
 static void ledTask(void*) {
   SmartLed leds(LED_WS2812B, ledCount, ledPin, ledPwmChannel);
-  uint distance;
   uint lastDistance;
   unsigned long noDiffTimer = millis();
 
@@ -55,8 +58,6 @@ static void ledTask(void*) {
       if(millis() - noDiffTimer > 4000) {
 
         buzzerDelTime = -1;
-
-        distanceEntity.update(distance);
         
         if(!stan && percentage < 30) {
           
@@ -135,6 +136,7 @@ static void mqttTask(void*) {
 
     mqtt.loop();
     delay(1000);
+    distanceEntity.update(distance);
   }
 }
 
