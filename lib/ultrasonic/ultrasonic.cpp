@@ -1,4 +1,4 @@
-#include "ultrasonic.h"
+#include "ultrasonic.hpp"
 
 extern QueueHandle_t distanceQueue;
 extern QueueHandle_t secondQueue;

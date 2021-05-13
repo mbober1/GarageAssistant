@@ -4,10 +4,10 @@
 #include "pinout.hpp"
 
 #include <SmartLeds.h>
-#include <ultrasonic.h>
+#include <ultrasonic.hpp>
 
-#include <wifi.hh>
-#include <mqtt.hh>
+#include <wifi.hpp>
+#include <mqtt.hpp>
 
 
 myWifi wifi(ssid, password);
