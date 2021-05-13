@@ -29,12 +29,10 @@ int buzzerDelTime = -1;
 
 QueueHandle_t distanceQueue;
 
-Entity autoStatus(EntityType::binarySensor, "Auto", &mqtt);
+Entity statusEntity(EntityType::binarySensor, "Auto", &mqtt);
 Entity distanceEntity(EntityType::sensor, "Distance", &mqtt);
 
-
-int stan = 0;
-int val = 0;
+bool stan = false;
 
 /************************************************************************************/
 
@@ -43,6 +41,8 @@ static void ledTask(void*) {
   uint distance;
   uint lastDistance;
   unsigned long noDiffTimer = millis();
+
+  /************************************************/
 
   while(1) {
     if(xQueueReceive(distanceQueue, &distance, portMAX_DELAY)) {
@@ -54,10 +54,7 @@ static void ledTask(void*) {
       }
 
       uint percentage = (distance*100)/maxDistance;
-      if(percentage > 100)
-      {
-        percentage = 100;
-      }
+      if(percentage > 100) percentage = 100;
 
       uint activeLeds = (percentage * ledCount)/100;
       if(activeLeds < 10) activeLeds = 10;
@@ -68,6 +65,8 @@ static void ledTask(void*) {
       else buzzerDelTime = map(percentage, 10, 80, 50, 750);
       // Koniec wstawki
 
+    /************************************************/
+
       if(millis() - noDiffTimer > 4000) {
 
         buzzerDelTime = -1;
@@ -76,15 +75,13 @@ static void ledTask(void*) {
         
         if(!stan && percentage < 30) {
           
-          stan = true;
-          autoStatus.update(stan ? "ON" : "OFF");
-          printf("MQTT auto status %d\n", stan);
+          statusEntity.update("ON");
+          printf("MQTT auto status ON\n");
         }
         if(stan && percentage > 90) {
 
-          stan = false;
-          autoStatus.update(stan ? "ON" : "OFF");
-          printf("MQTT auto status %d\n", stan);
+          statusEntity.update("OFF");
+          printf("MQTT auto status OFF\n");
         }
 
         uint k = darkModeBrightness*percentage/100;
@@ -144,7 +141,7 @@ static void mqttTask(void*) {
   wifi.connect();
   mqtt.connect(wifi.client);
   
-  autoStatus.configure();
+  statusEntity.configure();
   distanceEntity.configure();
 
   digitalWrite(GPIO_NUM_25, 0);
