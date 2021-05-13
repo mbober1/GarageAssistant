@@ -5,8 +5,6 @@
 #include "esp_log.h"
 #include "freertos/queue.h"
 
-#include "pinout.hpp"
-
 class Ultrasonic {
 
     gpio_num_t triggerPin, echoPin;
@@ -15,7 +13,7 @@ class Ultrasonic {
 
 public:
 
-    Ultrasonic::Ultrasonic(gpio_num_t echoPin);
+    Ultrasonic(gpio_num_t echoPin);
     Ultrasonic(gpio_num_t triggerPin, gpio_num_t echoPin, ledc_channel_t pwmChannel);
     ~Ultrasonic();
 };

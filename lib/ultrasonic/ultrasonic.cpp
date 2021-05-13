@@ -1,38 +1,68 @@
-#include "ultrasonic.hpp"
+#include "ultrasonic.h"
 
 extern QueueHandle_t distanceQueue;
+extern QueueHandle_t secondQueue;
 unsigned long sensor1Time;
+unsigned long sensor2Time;
+
+#define ECHO GPIO_NUM_14
+#define secondEcho GPIO_NUM_12
 
 uint8_t errorDistaneCounter = 0; // Liczenie błędów - jeśli jest ponad 30 pod rząd oznacza to brak obiektu w zakresie.
+uint8_t secondErrorDistaneCounter = 0;
 
 /************************************************************************************/
 
 static void IRAM_ATTR triggerInterrupt(void* arg)
 {
-    int* argNum = (int*)&arg;
-    if(*argNum == ECHO) {
-        if(gpio_get_level(ECHO)) {
 
-            uint distance = (esp_timer_get_time() - sensor1Time)/58;
+    if(gpio_get_level(ECHO)) {
 
-            if(distance < 200) {
+        uint distance = (esp_timer_get_time() - sensor1Time)/58;
 
-                errorDistaneCounter = 0;
+        if(distance < 200) {
+
+            errorDistaneCounter = 0;
+            xQueueSendToBack(distanceQueue, &distance, 0);
+        }
+        else {
+
+            errorDistaneCounter++;
+            if(errorDistaneCounter > 30) {
+                distance = 200;
                 xQueueSendToBack(distanceQueue, &distance, 0);
             }
-            else {
-
-                errorDistaneCounter++;
-                if(errorDistaneCounter > 30) {
-                    distance = 200;
-                    xQueueSendToBack(distanceQueue, &distance, 0);
-                }
-            }
-
         }
-        else sensor1Time = esp_timer_get_time();
-    }
 
+    }
+    else sensor1Time = esp_timer_get_time();
+}
+
+/************************************************************************************/
+
+static void IRAM_ATTR secondInterrupt(void* arg)
+{
+
+    if(gpio_get_level(secondEcho)) {
+
+        uint distance = (esp_timer_get_time() - sensor2Time)/58;
+
+        if(distance < 200) {
+
+            secondErrorDistaneCounter = 0;
+            xQueueSendToBack(secondQueue, &distance, 0);
+        }
+        else {
+
+            secondErrorDistaneCounter++;
+            if(secondErrorDistaneCounter > 30) {
+                distance = 200;
+                xQueueSendToBack(secondQueue, &distance, 0);
+            }
+        }
+
+    }
+    else sensor2Time = esp_timer_get_time();
 }
 
 /************************************************************************************/
@@ -97,7 +127,7 @@ Ultrasonic::Ultrasonic(gpio_num_t echoPin) : echoPin(echoPin)
     io_conf.pin_bit_mask = (1ULL<<echo_num);
     err += gpio_config(&io_conf);
 
-    err += gpio_isr_handler_add(this->echoPin, triggerInterrupt, (void*) &echo_num);
+    err += gpio_isr_handler_add(this->echoPin, secondInterrupt, (void*) &echo_num);
 
     if(err) ESP_LOGE("Ultrasonic", "sensor failed");
     else ESP_LOGE("Ultrasonic", "sensor initialized");

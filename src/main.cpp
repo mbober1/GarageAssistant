@@ -1,10 +1,10 @@
 #define INCLUDE_vTaskSuspend 1
 
 #include "secrets.hpp"
-#include "pinout.hpp"
+#include "pinout.h"
 
 #include <SmartLeds.h>
-#include <ultrasonic.hpp>
+#include <ultrasonic.h>
 
 #include <wifi.hh>
 #include <mqtt.hh>
@@ -16,6 +16,7 @@ myWifi wifi(ssid, password);
 myMQTT mqtt(project_name, mqtt_server, mqtt_port, mqtt_user, mqtt_pass, mqtt_dir);
 
 QueueHandle_t distanceQueue;
+QueueHandle_t secondQueue;
 
 Entity statusEntity(EntityType::binarySensor, "Auto", &mqtt);
 Entity distanceEntity(EntityType::sensor, "Distance", &mqtt);
