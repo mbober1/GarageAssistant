@@ -115,9 +115,6 @@ Ultrasonic::Ultrasonic(gpio_num_t echoPin) : echoPin(echoPin)
     const int echo_num = (int)echoPin;
     int err = 0;
 
-    err += gpio_set_direction(this->triggerPin, GPIO_MODE_OUTPUT);
-    err += gpio_set_level(this->triggerPin, 0);
-
     err += gpio_install_isr_service(0);
     gpio_config_t io_conf = {};
     io_conf.intr_type = GPIO_INTR_ANYEDGE;
@@ -129,8 +126,8 @@ Ultrasonic::Ultrasonic(gpio_num_t echoPin) : echoPin(echoPin)
 
     err += gpio_isr_handler_add(this->echoPin, secondInterrupt, (void*) &echo_num);
 
-    if(err) ESP_LOGE("Ultrasonic", "sensor failed");
-    else ESP_LOGE("Ultrasonic", "sensor initialized");
+    if(err) ESP_LOGE("Second Ultrasonic", "sensor failed");
+    else ESP_LOGE("Second Ultrasonic", "sensor initialized");
 }
 
 /************************************************************************************/

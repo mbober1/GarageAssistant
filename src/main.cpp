@@ -20,9 +20,11 @@ QueueHandle_t secondQueue;
 
 Entity statusEntity(EntityType::binarySensor, "Auto", &mqtt);
 Entity distanceEntity(EntityType::sensor, "Distance", &mqtt);
+Entity secondDistEntity(EntityType::sensor, "SecondDistance", &mqtt);
 
 bool stan = false;
 uint distance;
+uint secondDistance;
 
 /************************************************************************************/
 
@@ -34,6 +36,9 @@ static void ledTask(void*) {
   /************************************************/
 
   while(1) {
+    
+    xQueueReceive(secondQueue, &secondDistance, portMAX_DELAY);
+
     if(xQueueReceive(distanceQueue, &distance, portMAX_DELAY)) {
 
       if(abs(lastDistance - distance) > 25) {
@@ -132,6 +137,7 @@ static void mqttTask(void*) {
   
   statusEntity.configure();
   distanceEntity.configure();
+  //secondDistEntity.configure();
 
   digitalWrite(simpleLed, 0);
 
@@ -140,6 +146,7 @@ static void mqttTask(void*) {
     mqtt.loop();
     delay(300);
     distanceEntity.update(distance);
+    //secondDistEntity.update(secondDistance);
   }
 }
 
@@ -151,11 +158,14 @@ void setup() {
   Serial.printf("Version: %d\n", LAST_BUILD_TIME);
   
   distanceQueue = xQueueCreate(5, sizeof(uint));
+  secondQueue = xQueueCreate(5, sizeof(uint));
+
   xTaskCreate(ledTask, "Ledy_Task", 4096, nullptr, 3, NULL);
   xTaskCreate(buzzerTask, "Buzzer_Task", 4096, nullptr, 4, NULL);
   xTaskCreate(mqttTask, "Mqtt_Task", 4096, nullptr, 4, NULL);
 
   Ultrasonic sensor(TRIG, ECHO, SENSOR_PWM);
+  Ultrasonic secondSensor(secondEcho);
 }
 
 void loop() {}

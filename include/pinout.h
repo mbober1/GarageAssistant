@@ -6,6 +6,7 @@
 //ultrasonic sensor config
 const gpio_num_t TRIG = GPIO_NUM_33;
 const gpio_num_t ECHO = GPIO_NUM_14;
+const gpio_num_t secondEcho = GPIO_NUM_12;
 
 //leds config
 const uint maxDistance = 200;
