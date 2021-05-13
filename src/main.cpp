@@ -17,7 +17,7 @@ myMQTT mqtt(project_name, mqtt_server, mqtt_port, mqtt_user, mqtt_pass, mqtt_dir
 
 QueueHandle_t distanceQueue;
 
-Entity statusEntity(EntityType::binarySensor, "AutoStatus", &mqtt);
+Entity statusEntity(EntityType::binarySensor, "Auto", &mqtt);
 Entity distanceEntity(EntityType::sensor, "Distance", &mqtt);
 
 bool stan = false;
@@ -63,11 +63,13 @@ static void ledTask(void*) {
           
           statusEntity.update("ON");
           printf("MQTT auto status ON\n");
+          stan = true;
         }
-        if(stan && percentage > 85) {
+        if(stan && percentage > 90) {
 
           statusEntity.update("OFF");
           printf("MQTT auto status OFF\n");
+          stan = false;
         }
 
         uint k = darkModeBrightness*percentage/100;
@@ -135,7 +137,7 @@ static void mqttTask(void*) {
   while(1) {
 
     mqtt.loop();
-    delay(330);
+    delay(300);
     distanceEntity.update(distance);
   }
 }
