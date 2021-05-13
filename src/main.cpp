@@ -18,9 +18,9 @@ myMQTT mqtt(project_name, mqtt_server, mqtt_port, mqtt_user, mqtt_pass, mqtt_dir
 QueueHandle_t distanceQueue;
 QueueHandle_t secondQueue;
 
-Entity statusEntity(EntityType::binarySensor, "Auto", &mqtt);
-Entity distanceEntity(EntityType::sensor, "Distance", &mqtt);
-//Entity secondDistEntity(EntityType::sensor, "SecondDistance", &mqtt);
+Entity statusEntity(EntityType::binarySensor, "status", &mqtt);
+Entity distanceEntity(EntityType::sensor, "distance", &mqtt);
+Entity secondDistEntity(EntityType::sensor, "distance2", &mqtt);
 
 bool stan = false;
 uint distance;
@@ -137,7 +137,7 @@ static void mqttTask(void*) {
   
   statusEntity.configure();
   distanceEntity.configure();
-  //secondDistEntity.configure();
+  secondDistEntity.configure();
 
   digitalWrite(simpleLed, 0);
 

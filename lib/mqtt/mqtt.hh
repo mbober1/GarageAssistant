@@ -81,8 +81,7 @@ String Entity::addParamether(String data) {
 String Entity::getTopic() {
   String topic("homeassistant");
   topic += Entity::addParamether(this->getTypeName());
-  topic += Entity::addParamether(mqtt->getMqttDir());
-  topic += Entity::addParamether("rak");
+  topic += Entity::addParamether(this->name);
   return topic;
 }
 
@@ -92,8 +91,7 @@ String Entity::getPayload() {
   payload += this->name;
   payload += "\", \"state_topic\": \"homeassistant";
   payload += Entity::addParamether(this->getTypeName());
-  payload += Entity::addParamether(mqtt->getMqttDir());
-  payload += Entity::addParamether("rak");
+  payload += Entity::addParamether(this->name);
   payload += Entity::addParamether("value");
   payload += "\"}";
   return payload;
@@ -109,12 +107,14 @@ void Entity::configure() {
   printf("Configured MQTT %s!\n", this->name.c_str());
 }
 
+
 void Entity::update(String data) {
   String topic = this->getTopic();
   topic += Entity::addParamether("value");
 
   this->mqtt->publish(topic, data);
 }
+
 
 void Entity::update(int data) {
   String topic = this->getTopic();
