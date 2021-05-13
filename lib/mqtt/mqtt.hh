@@ -36,7 +36,7 @@ const char* myMQTT::getMqttDir() { return this->mqtt_dir; }
   
 void myMQTT::connect(Client &client) {
   printf("\nConnecting to %s\n", this->mqtt_server);
-  MQTTClient::begin(this->mqtt_server, 6969, client);
+  MQTTClient::begin(this->mqtt_server, mqtt_port, client);
   while (!MQTTClient::connect(this->project_name, this->mqtt_user, this->mqtt_pass)) {
     Serial.print(".");
     delay(500);
