@@ -51,6 +51,8 @@ class Entity {
   myMQTT *mqtt;
 
   String getTypeName();
+  static String addParamether(String data);
+
 
   public:
     Entity(EntityType type, String name, myMQTT *mqtt);
@@ -68,12 +70,19 @@ name(name),
 mqtt(mqtt) {}
 
 
+String Entity::addParamether(String data) {
+  String tmp("/");
+  tmp += data;
+  return tmp;
+}
+
+
+
 String Entity::getTopic() {
-  String topic("homeassistant/");
-  topic += this->getTypeName();
-  topic += "/";
-  topic += mqtt->getMqttDir();
-  topic += "/car/";
+  String topic("homeassistant");
+  topic += Entity::addParamether(this->getTypeName());
+  topic += Entity::addParamether(mqtt->getMqttDir());
+  topic += Entity::addParamether("rak");
   return topic;
 }
 
@@ -81,12 +90,11 @@ String Entity::getTopic() {
 String Entity::getPayload() {
   String payload("{\"name\": \"");
   payload += this->name;
-  payload += "\", \"state_topic\": \"homeassistant/";
-  payload += this->getTypeName();
-  payload += "/";
-  payload += mqtt->getMqttDir();
-  payload += "/car/";
-  payload += "value";
+  payload += "\", \"state_topic\": \"homeassistant";
+  payload += Entity::addParamether(this->getTypeName());
+  payload += Entity::addParamether(mqtt->getMqttDir());
+  payload += Entity::addParamether("rak");
+  payload += Entity::addParamether("value");
   payload += "\"}";
   return payload;
 }
@@ -95,7 +103,7 @@ String Entity::getPayload() {
 void Entity::configure() {
   String topic = this->getTopic();
   String payload = this->getPayload();
-  topic += "config";
+  topic += Entity::addParamether("config");
 
   mqtt->publish(topic, payload);
   printf("Configured MQTT %s!\n", this->name.c_str());
@@ -103,14 +111,14 @@ void Entity::configure() {
 
 void Entity::update(String data) {
   String topic = this->getTopic();
-  topic += "value";
+  topic += Entity::addParamether("value");
 
   this->mqtt->publish(topic, data);
 }
 
 void Entity::update(int data) {
   String topic = this->getTopic();
-  topic += "value";
+  topic += Entity::addParamether("value");
 
   this->mqtt->publish(topic, String(data));
 }
