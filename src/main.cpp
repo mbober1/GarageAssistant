@@ -123,8 +123,8 @@ static void buzzerTask(void*) {
 
 static void mqttTask(void*) {
 
-  pinMode(GPIO_NUM_25, OUTPUT);
-  digitalWrite(GPIO_NUM_25, 1);
+  pinMode(simpleLed, OUTPUT);
+  digitalWrite(simpleLed, 1);
 
   wifi.connect();
   mqtt.connect(wifi.client);
@@ -132,7 +132,7 @@ static void mqttTask(void*) {
   statusEntity.configure();
   distanceEntity.configure();
 
-  digitalWrite(GPIO_NUM_25, 0);
+  digitalWrite(simpleLed, 0);
 
   while(1) {
 

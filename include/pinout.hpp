@@ -11,6 +11,8 @@ const gpio_num_t ledPin = GPIO_NUM_27;
 const int darkModeBrightness = 7;
 const int activeBrightness = 127;
 
+const gpio_num_t simpleLed = GPIO_NUM_25;
+
 //buzzer config
 const gpio_num_t buzzerPin = GPIO_NUM_32;
 int buzzerDelTime = -1;
