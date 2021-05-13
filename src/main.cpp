@@ -147,6 +147,8 @@ static void mqttTask(void*) {
     delay(300);
     distanceEntity.update(distance);
     //secondDistEntity.update(secondDistance);
+    Serial.printf("Main sensor: %d\n", distance);
+    Serial.printf("Second sensor: %d\n", secondDistance);
   }
 }
 
