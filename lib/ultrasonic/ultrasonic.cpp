@@ -3,12 +3,28 @@
 extern QueueHandle_t distanceQueue;
 unsigned long sensor1Time;
 
+uint8_t errorDistaneCounter = 0; // Liczenie błędów - jeśli jest ponad 30 pod rząd oznacza to brak obiektu w zakresie.
 
 static void IRAM_ATTR triggerInterrupt(void* arg)
 {
-    if(!gpio_get_level(GPIO_NUM_2)) {
+    if(gpio_get_level(GPIO_NUM_14)) {
+
         uint distance = (esp_timer_get_time() - sensor1Time)/58;
-        xQueueSendToBack(distanceQueue, &distance, 0);
+
+        if(distance < 200) {
+
+            errorDistaneCounter = 0;
+            xQueueSendToBack(distanceQueue, &distance, 0);
+        }
+        else {
+
+            errorDistaneCounter++;
+            if(errorDistaneCounter > 30) {
+                distance = 200;
+                xQueueSendToBack(distanceQueue, &distance, 0);
+            }
+        }
+
     }
     else sensor1Time = esp_timer_get_time();
 }
@@ -27,7 +43,7 @@ Ultrasonic::Ultrasonic(gpio_num_t triggerPin, gpio_num_t echoPin, ledc_channel_t
     io_conf.intr_type = GPIO_INTR_ANYEDGE;
     io_conf.mode = GPIO_MODE_INPUT;
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
     io_conf.pin_bit_mask = (1ULL<<echo_num);
     err += gpio_config(&io_conf);
 
@@ -37,7 +53,6 @@ Ultrasonic::Ultrasonic(gpio_num_t triggerPin, gpio_num_t echoPin, ledc_channel_t
     ledc_timer.freq_hz = 5;
     ledc_timer.speed_mode = LEDC_HIGH_SPEED_MODE;
     ledc_timer.timer_num = LEDC_TIMER_0;
-    // ledc_timer.clk_cfg = LEDC_AUTO_CLK;
     err += ledc_timer_config(&ledc_timer);
 
     ledc_channel.channel = pwmChannel;
