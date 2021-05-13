@@ -52,6 +52,7 @@ class Entity {
 
   String getTypeName();
   static String addParamether(String data);
+  static String addVariable(String name, String data, String separator);
 
 
   public:
@@ -76,6 +77,17 @@ String Entity::addParamether(String data) {
   return tmp;
 }
 
+String Entity::addVariable(String name, String data, String separator = "") {
+  String tmp("\"");
+  tmp += name;
+  tmp += "\": \"";
+  tmp += data;
+  tmp += "\"";
+  tmp += separator;
+
+  return tmp;
+}
+
 
 
 String Entity::getTopic() {
@@ -87,13 +99,15 @@ String Entity::getTopic() {
 
 
 String Entity::getPayload() {
-  String payload("{\"name\": \"");
-  payload += this->name;
-  payload += "\", \"state_topic\": \"homeassistant";
-  payload += Entity::addParamether(this->getTypeName());
-  payload += Entity::addParamether(this->name);
-  payload += Entity::addParamether("value");
-  payload += "\"}";
+  String payload("{");
+  String path("homeassistant");
+  path += Entity::addParamether(this->getTypeName());
+  path += Entity::addParamether(this->name);
+  path += Entity::addParamether("value");
+
+  payload += Entity::addVariable("name", this->name, ", ");
+  payload += Entity::addVariable("state_topic", path);
+  payload += "}";
   return payload;
 }
 
