@@ -1,7 +1,7 @@
 #define INCLUDE_vTaskSuspend 1
 
 #include "secrets.hpp"
-#include "pinout.h"
+#include "pinout.hpp"
 
 #include <SmartLeds.h>
 #include <ultrasonic.h>
@@ -9,8 +9,6 @@
 #include <wifi.hh>
 #include <mqtt.hh>
 
-const ledc_channel_t SENSOR_PWM = LEDC_CHANNEL_0;
-const ledc_channel_t ledPwmChannel = LEDC_CHANNEL_1;
 
 myWifi wifi(ssid, password);
 myMQTT mqtt(project_name, mqtt_server, mqtt_port, mqtt_user, mqtt_pass, mqtt_dir);
