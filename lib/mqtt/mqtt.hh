@@ -47,7 +47,7 @@ void myMQTT::connect(Client &client) {
 
 class Entity {
   EntityType type;
-  String name;
+  String name, data;
   myMQTT *mqtt;
 
   String getTypeName();
@@ -108,19 +108,19 @@ void Entity::configure() {
 }
 
 
-void Entity::update(String data) {
+void Entity::update(String newData) {
   String topic = this->getTopic();
   topic += Entity::addParamether("value");
 
-  this->mqtt->publish(topic, data);
+  if(this->data != newData) {
+    this->data = newData;
+    this->mqtt->publish(topic, this->data);
+  }
 }
 
 
-void Entity::update(int data) {
-  String topic = this->getTopic();
-  topic += Entity::addParamether("value");
-
-  this->mqtt->publish(topic, String(data));
+void Entity::update(int newData) {
+  Entity::update(String(newData));
 }
 
 
