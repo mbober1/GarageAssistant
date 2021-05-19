@@ -35,78 +35,72 @@ static void ledTask(void*) {
   /************************************************/
 
   while(1) {
-    
     xQueueReceive(secondQueue, &secondDistance, portMAX_DELAY);
+    xQueueReceive(distanceQueue, &distance, portMAX_DELAY);
 
-    if(xQueueReceive(distanceQueue, &distance, portMAX_DELAY)) {
-
-      if(abs(lastDistance - distance) > 25) {
-        
-        noDiffTimer = millis();
-        lastDistance = distance;
-      }
-
-      uint percentage = (distance*100)/maxDistance;
-      if(percentage > 100) percentage = 100;
-
-      uint activeLeds = (percentage * ledCount)/100;
-      if(activeLeds < 10) activeLeds = 10;
-
-      // Mała wstawka dla buzzera:
-      if(percentage < 10) buzzerDelTime = 10;
-      else if(percentage > 80) buzzerDelTime = -1;
-      else buzzerDelTime = map(percentage, 10, 80, 50, 750);
-      // Koniec wstawki
-
-    /************************************************/
-
-      if(millis() - noDiffTimer > 4000) {
-
-        buzzerDelTime = -1;
-        
-        if(!stan && percentage < 40) {
-          
-          statusEntity.update("ON");
-          printf("MQTT auto status ON\n");
-          stan = true;
-
-          if(secondDistance > distance + 50)
-            orientationEntity.update("ON");
-
-          else orientationEntity.update("OFF");
-        }
-
-        if(stan && percentage > 80) {
-
-          //orientationEntity.update(0);
-          statusEntity.update("OFF");
-          printf("MQTT auto status OFF\n");
-          stan = false;
-        }
-
-        uint8_t k = darkModeBrightness*percentage/100;
-
-        for(uint8_t i = 0; i < ledCount; ++i) {
-          leds[i] = Rgb{(activeLeds<=i)?(uint8_t)0:(uint8_t)(darkModeBrightness-k),(activeLeds<=i)?(uint8_t)0:(uint8_t)k,0};
-        }
-
-      }
-      else {
-
-        uint8_t k = activeBrightness*percentage/100;
-
-        for(uint8_t i = 0; i < ledCount; ++i) {
-          leds[i] = Rgb{(activeLeds<=i)?(uint8_t)0:(uint8_t)(activeBrightness-k),(activeLeds<=i)?(uint8_t)0:(uint8_t)k,0};
-        }
-
-      }
-      
-      leds.show();
+    if(abs(lastDistance - distance) > 25) {
+      noDiffTimer = millis();
+      lastDistance = distance;
     }
 
-    else delay(1);
+    uint percentage = (distance*100)/maxDistance;
+    if(percentage > 100) percentage = 100;
 
+    uint activeLeds = (percentage * ledCount)/100;
+    if(activeLeds < 10) activeLeds = 10;
+
+    distanceEntity.update(distance);
+    secondDistEntity.update(secondDistance);
+    Serial.printf("Sensor1: %3d, Sensor2 %3d\n", distance, secondDistance);
+
+    // Mała wstawka dla buzzera:
+    if(percentage < 10) buzzerDelTime = 10;
+    else if(percentage > 80) buzzerDelTime = -1;
+    else buzzerDelTime = map(percentage, 10, 80, 50, 750);
+    // Koniec wstawki
+
+  /************************************************/
+
+    if(millis() - noDiffTimer > 4000) {
+
+      buzzerDelTime = -1;
+      
+      if(!stan && percentage < 40) {
+        
+        statusEntity.update("ON");
+        printf("MQTT auto status ON\n");
+        stan = true;
+
+        if(secondDistance > distance + 50) orientationEntity.update("ON");
+        else orientationEntity.update("OFF");
+      }
+
+      if(stan && percentage > 80) {
+
+        //orientationEntity.update(0);
+        statusEntity.update("OFF");
+        printf("MQTT auto status OFF\n");
+        stan = false;
+      }
+
+      uint8_t k = darkModeBrightness*percentage/100; // co to jest k?
+
+      for(uint8_t i = 0; i < ledCount; ++i) {
+        leds[i] = Rgb{(activeLeds<=i)?(uint8_t)0:(uint8_t)(darkModeBrightness-k),(activeLeds<=i)?(uint8_t)0:(uint8_t)k,0}; // <-- niech ktoś to rozszyfruje i poprawi
+      }
+
+    } else {
+      uint8_t k = activeBrightness*percentage/100; // tutaj kolejne K, tylko inne? Naprawdę nie można nazwać zmiennej tak aby coś znaczyła?
+
+      for(uint8_t i = 0; i < ledCount; ++i) {
+        leds[i] = Rgb{(activeLeds<=i)?(uint8_t)0:(uint8_t)(activeBrightness-k),(activeLeds<=i)?(uint8_t)0:(uint8_t)k,0}; // <-- niech ktoś to rozszyfruje i poprawi
+      }
+
+    }
+    
+    leds.show();
   }
+  
 }
 
 /************************************************************************************/
@@ -117,7 +111,7 @@ static void buzzerTask(void*) {
 
   while(1) {
     
-    int timeCopy = buzzerDelTime;
+    int timeCopy = buzzerDelTime; // do czego służy timeCopy? nie da się tutaj użyć buzzerDelTime
 
     if(timeCopy > 0) {
       
@@ -126,36 +120,6 @@ static void buzzerTask(void*) {
       digitalWrite(buzzerPin, 0);
       delay(timeCopy);
     }
-    else delay(1);
-
-  }
-}
-
-/************************************************************************************/
-
-static void mqttTask(void*) {
-
-  pinMode(simpleLed, OUTPUT);
-  digitalWrite(simpleLed, 1);
-
-  wifi.connect();
-  mqtt.connect(wifi.client);
-  
-  statusEntity.configure();
-  distanceEntity.configure();
-  secondDistEntity.configure();
-  orientationEntity.configure();
-
-  digitalWrite(simpleLed, 0);
-
-  while(1) {
-
-    mqtt.loop();
-    delay(300);
-    distanceEntity.update(distance);
-    secondDistEntity.update(secondDistance);
-    Serial.printf("Main sensor: %d\n", distance);
-    Serial.printf("Second sensor: %d\n", secondDistance);
   }
 }
 
@@ -169,12 +133,26 @@ void setup() {
   distanceQueue = xQueueCreate(5, sizeof(uint));
   secondQueue = xQueueCreate(5, sizeof(uint));
 
-  // xTaskCreate(ledTask, "Ledy_Task", 4096, nullptr, 1, NULL);
-  // xTaskCreate(buzzerTask, "Buzzer_Task", 1024, nullptr, 6, NULL);
-  xTaskCreate(mqttTask, "Mqtt_Task", 4096, nullptr, 6, NULL);
 
-  // Ultrasonic sensor(TRIG, ECHO, SENSOR_PWM);
-  // Ultrasonic secondSensor(secondEcho);
+  pinMode(simpleLed, OUTPUT);
+  digitalWrite(simpleLed, 1);
+
+  wifi.connect();
+  mqtt.connect(wifi.client);
+  
+  statusEntity.configure();
+  distanceEntity.configure();
+  secondDistEntity.configure();
+  orientationEntity.configure();
+
+  delay(1000);
+  digitalWrite(simpleLed, 0);
+
+  Ultrasonic sensor(TRIG, ECHO, SENSOR_PWM);
+  Ultrasonic secondSensor(secondEcho);
+
+  xTaskCreate(ledTask, "Ledy_Task", 4096, nullptr, 1, NULL);
+  xTaskCreate(buzzerTask, "Buzzer_Task", 1024, nullptr, 6, NULL);
 }
 
 void loop() {}
