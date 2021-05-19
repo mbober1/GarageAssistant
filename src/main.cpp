@@ -60,11 +60,7 @@ static void ledTask(void*) {
 
     /************************************************/
 
-      if(millis() - noDiffTimer > 4000) {
-
-        buzzerDelTime = -1;
-        
-        if(!stan && percentage < 40) {
+      if(!stan && percentage < 40) {
           
           statusEntity.update("ON");
           printf("MQTT auto status ON\n");
@@ -78,11 +74,17 @@ static void ledTask(void*) {
 
         if(stan && percentage > 80) {
 
-          //orientationEntity.update(0);
+          orientationEntity.update("OFF");
           statusEntity.update("OFF");
           printf("MQTT auto status OFF\n");
           stan = false;
         }
+
+    /************************************************/
+
+      if(millis() - noDiffTimer > 4000) {
+
+        buzzerDelTime = -1;
 
         uint8_t k = darkModeBrightness*percentage/100;
 
@@ -102,6 +104,7 @@ static void ledTask(void*) {
       }
       
       leds.show();
+      delay(50);
     }
 
     else delay(1);
