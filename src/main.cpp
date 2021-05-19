@@ -32,8 +32,6 @@ static void ledTask(void*) {
   uint lastDistance = 0;
   unsigned long noDiffTimer = millis();
 
-  /************************************************/
-
   while(1) {
     xQueueReceive(secondQueue, &secondDistance, portMAX_DELAY);
     xQueueReceive(distanceQueue, &distance, portMAX_DELAY);
@@ -55,18 +53,16 @@ static void ledTask(void*) {
 
     // Mała wstawka dla buzzera:
     if(percentage < 10) buzzerDelTime = 10;
-    else if(percentage > 80) buzzerDelTime = -1;
+    else if(percentage > continuousSignalThreshold) buzzerDelTime = -1;
     else buzzerDelTime = map(percentage, 10, 80, 50, 750);
     // Koniec wstawki
 
-  /************************************************/
 
     if(millis() - noDiffTimer > activeTimeout) {
 
       buzzerDelTime = -1;
       
       if(!stan && percentage < 40) {
-        
         statusEntity.update("ON");
         printf("MQTT auto status ON\n");
         stan = true;
@@ -76,7 +72,6 @@ static void ledTask(void*) {
       }
 
       if(stan && percentage > 80) {
-
         //orientationEntity.update(0);
         statusEntity.update("OFF");
         printf("MQTT auto status OFF\n");
@@ -87,20 +82,17 @@ static void ledTask(void*) {
 
       for(uint8_t i = 0; i < ledCount; ++i) {
         leds[i] = Rgb{(activeLeds<=i)?(uint8_t)0:(uint8_t)(darkModeBrightness-k),(activeLeds<=i)?(uint8_t)0:(uint8_t)k,0}; // <-- niech ktoś to rozszyfruje i poprawi
-      }
-
+      }    //                                                                /\ 
+          //           trzeba było się nie rozdrabniać i odrazu tutaj wstawić  "darkModeBrightness*percentage/100" , już więcej na czytelności by nie utraciło            
     } else {
       uint8_t k = activeBrightness*percentage/100; // tutaj kolejne K, tylko inne? Naprawdę nie można nazwać zmiennej tak aby coś znaczyła?
 
       for(uint8_t i = 0; i < ledCount; ++i) {
         leds[i] = Rgb{(activeLeds<=i)?(uint8_t)0:(uint8_t)(activeBrightness-k),(activeLeds<=i)?(uint8_t)0:(uint8_t)k,0}; // <-- niech ktoś to rozszyfruje i poprawi
       }
-
     }
-    
     leds.show();
   }
-  
 }
 
 /************************************************************************************/
