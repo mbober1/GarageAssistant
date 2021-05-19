@@ -1,7 +1,7 @@
 #define INCLUDE_vTaskSuspend 1
 
 #include "secrets.hpp"
-#include "pinout.hpp"
+#include "config.hpp"
 
 #include <SmartLeds.h>
 #include <ultrasonic.hpp>
@@ -38,7 +38,7 @@ static void ledTask(void*) {
     xQueueReceive(secondQueue, &secondDistance, portMAX_DELAY);
     xQueueReceive(distanceQueue, &distance, portMAX_DELAY);
 
-    if(abs(lastDistance - distance) > 25) {
+    if(abs(lastDistance - distance) > activeEpsilon) {
       noDiffTimer = millis();
       lastDistance = distance;
     }
@@ -47,7 +47,7 @@ static void ledTask(void*) {
     if(percentage > 100) percentage = 100;
 
     uint activeLeds = (percentage * ledCount)/100;
-    if(activeLeds < 10) activeLeds = 10;
+    if(activeLeds < inactiveLedCount) activeLeds = inactiveLedCount;
 
     distanceEntity.update(distance);
     secondDistEntity.update(secondDistance);
@@ -61,7 +61,7 @@ static void ledTask(void*) {
 
   /************************************************/
 
-    if(millis() - noDiffTimer > 4000) {
+    if(millis() - noDiffTimer > activeTimeout) {
 
       buzzerDelTime = -1;
       
