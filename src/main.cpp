@@ -78,17 +78,17 @@ static void ledTask(void*) {
         stan = false;
       }
 
-      uint8_t k = darkModeBrightness*percentage/100; // co to jest k?
+      uint8_t k = dModeBrig*percentage/100; // co to jest k?
 
       for(uint8_t i = 0; i < ledCount; ++i) {
-        leds[i] = Rgb{(activeLeds<=i)?(uint8_t)0:(uint8_t)(darkModeBrightness-k),(activeLeds<=i)?(uint8_t)0:(uint8_t)k,0}; // <-- niech ktoś to rozszyfruje i poprawi
-      }    //                                                                /\ 
-          //           trzeba było się nie rozdrabniać i odrazu tutaj wstawić  "darkModeBrightness*percentage/100" , już więcej na czytelności by nie utraciło            
+        leds[i] = Rgb{(activeLeds<=i)?(uint8_t)0:(uint8_t)(dModeBrig-k),(activeLeds<=i)?(uint8_t)0:(uint8_t)k,0};
+      }    
+                     
     } else {
-      uint8_t k = activeBrightness*percentage/100; // tutaj kolejne K, tylko inne? Naprawdę nie można nazwać zmiennej tak aby coś znaczyła?
+      uint8_t k = actBrig*percentage/100; // tutaj kolejne K, tylko inne? Naprawdę nie można nazwać zmiennej tak aby coś znaczyła?
 
       for(uint8_t i = 0; i < ledCount; ++i) {
-        leds[i] = Rgb{(activeLeds<=i)?(uint8_t)0:(uint8_t)(activeBrightness-k),(activeLeds<=i)?(uint8_t)0:(uint8_t)k,0}; // <-- niech ktoś to rozszyfruje i poprawi
+        leds[i] = Rgb{(activeLeds<=i)?(uint8_t)0:(uint8_t)(actBrig-k),(activeLeds<=i)?(uint8_t)0:(uint8_t)k,0}; // <-- niech ktoś to rozszyfruje i poprawi
       }
     }
     leds.show();
