@@ -21,7 +21,6 @@ Entity orientationEntity(EntityType::binarySensor, "apud", &mqtt);
 Entity distanceEntity(EntityType::sensor, "distance", &mqtt);
 Entity secondDistEntity(EntityType::sensor, "distance2", &mqtt);
 
-bool stan = false;
 uint distance;
 uint secondDistance;
 
@@ -35,6 +34,17 @@ static void ledTask(void*) {
   while(1) {
     xQueueReceive(secondQueue, &secondDistance, portMAX_DELAY);
     xQueueReceive(distanceQueue, &distance, portMAX_DELAY);
+
+    if(distance < 80) {
+
+      statusEntity.update("ON");
+      if(secondDistance > distance + 50) orientationEntity.update("ON");
+    }
+    else if(distance > 180) {
+      
+      statusEntity.update("OFF");
+      orientationEntity.update("OFF");
+    }
 
     if(abs(lastDistance - distance) > activeEpsilon) {
       noDiffTimer = millis();
@@ -61,22 +71,7 @@ static void ledTask(void*) {
     if(millis() - noDiffTimer > activeTimeout) {
 
       buzzerDelTime = -1;
-      
-      if(!stan && percentage < 40) {
-        statusEntity.update("ON");
-        printf("MQTT auto status ON\n");
-        stan = true;
-
-        if(secondDistance > distance + 50) orientationEntity.update("ON");
-        else orientationEntity.update("OFF");
-      }
-
-      if(stan && percentage > 80) {
-        orientationEntity.update("OFF");
-        statusEntity.update("OFF");
-        printf("MQTT auto status OFF\n");
-        stan = false;
-      }
+    
 
       uint8_t k = dModeBrig*percentage/100; // co to jest k?
 
@@ -107,7 +102,7 @@ static void buzzerTask(void*) {
 
     if(timeCopy > 0) {
       
-      digitalWrite(buzzerPin, 1);
+      //digitalWrite(buzzerPin, 1);
       delay(100);
       digitalWrite(buzzerPin, 0);
       delay(timeCopy);
@@ -147,4 +142,7 @@ void setup() {
   xTaskCreate(buzzerTask, "Buzzer_Task", 1024, nullptr, 6, NULL);
 }
 
-void loop() {}
+void loop() {
+
+  mqtt.loop();
+}
