@@ -17,7 +17,7 @@ QueueHandle_t distanceQueue;
 QueueHandle_t secondQueue;
 
 Entity statusEntity(EntityType::binarySensor, "status", &mqtt);
-Entity orientationEntity(EntityType::binarySensor, "orientation", &mqtt);
+Entity orientationEntity(EntityType::binarySensor, "apud", &mqtt);
 Entity distanceEntity(EntityType::sensor, "distance", &mqtt);
 Entity secondDistEntity(EntityType::sensor, "distance2", &mqtt);
 
@@ -144,6 +144,7 @@ static void mqttTask(void*) {
   statusEntity.configure();
   distanceEntity.configure();
   secondDistEntity.configure();
+  orientationEntity.configure();
 
   digitalWrite(simpleLed, 0);
 
@@ -168,12 +169,12 @@ void setup() {
   distanceQueue = xQueueCreate(5, sizeof(uint));
   secondQueue = xQueueCreate(5, sizeof(uint));
 
-  xTaskCreate(ledTask, "Ledy_Task", 4096, nullptr, 1, NULL);
-  xTaskCreate(buzzerTask, "Buzzer_Task", 1024, nullptr, 6, NULL);
+  // xTaskCreate(ledTask, "Ledy_Task", 4096, nullptr, 1, NULL);
+  // xTaskCreate(buzzerTask, "Buzzer_Task", 1024, nullptr, 6, NULL);
   xTaskCreate(mqttTask, "Mqtt_Task", 4096, nullptr, 6, NULL);
 
-  Ultrasonic sensor(TRIG, ECHO, SENSOR_PWM);
-  Ultrasonic secondSensor(secondEcho);
+  // Ultrasonic sensor(TRIG, ECHO, SENSOR_PWM);
+  // Ultrasonic secondSensor(secondEcho);
 }
 
 void loop() {}
