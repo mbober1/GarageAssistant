@@ -147,6 +147,7 @@ static void mqttTask(void*) {
   statusEntity.configure();
   distanceEntity.configure();
   secondDistEntity.configure();
+  orientationEntity.configure();
 
   digitalWrite(simpleLed, 0);
 
