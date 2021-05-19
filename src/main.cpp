@@ -72,7 +72,7 @@ static void ledTask(void*) {
       }
 
       if(stan && percentage > 80) {
-        //orientationEntity.update(0);
+        orientationEntity.update("OFF");
         statusEntity.update("OFF");
         printf("MQTT auto status OFF\n");
         stan = false;
