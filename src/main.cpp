@@ -17,6 +17,7 @@ QueueHandle_t distanceQueue;
 QueueHandle_t secondQueue;
 
 Entity statusEntity(EntityType::binarySensor, "status", &mqtt);
+Entity orientationEntity(EntityType::binarySensor, "orientation", &mqtt);
 Entity distanceEntity(EntityType::sensor, "distance", &mqtt);
 Entity secondDistEntity(EntityType::sensor, "distance2", &mqtt);
 
@@ -63,14 +64,21 @@ static void ledTask(void*) {
 
         buzzerDelTime = -1;
         
-        if(!stan && percentage < 30) {
+        if(!stan && percentage < 40) {
           
           statusEntity.update("ON");
           printf("MQTT auto status ON\n");
           stan = true;
-        }
-        if(stan && percentage > 90) {
 
+          if(secondDistance > distance + 50)
+            orientationEntity.update("ON");
+
+          else orientationEntity.update("OFF");
+        }
+
+        if(stan && percentage > 80) {
+
+          //orientationEntity.update(0);
           statusEntity.update("OFF");
           printf("MQTT auto status OFF\n");
           stan = false;
@@ -113,7 +121,7 @@ static void buzzerTask(void*) {
 
     if(timeCopy > 0) {
       
-      //digitalWrite(buzzerPin, 1); Zakomentowane żeby nie nap...
+      digitalWrite(buzzerPin, 1);
       delay(100);
       digitalWrite(buzzerPin, 0);
       delay(timeCopy);
