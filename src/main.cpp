@@ -102,7 +102,7 @@ static void buzzerTask(void*) {
 
     if(timeCopy > 0) {
       
-      //digitalWrite(buzzerPin, 1);
+      digitalWrite(buzzerPin, 1);
       delay(100);
       digitalWrite(buzzerPin, 0);
       delay(timeCopy);
