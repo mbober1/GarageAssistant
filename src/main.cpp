@@ -35,10 +35,11 @@ static void ledTask(void*) {
     xQueueReceive(secondQueue, &secondDistance, portMAX_DELAY);
     xQueueReceive(distanceQueue, &distance, portMAX_DELAY);
 
-    if(distance < 80) {
+    if(distance < 100) {
 
       statusEntity.update("ON");
-      if(secondDistance > distance + 50) orientationEntity.update("ON");
+      if(secondDistance > distance + 15) orientationEntity.update("ON");
+      else orientationEntity.update("OFF");
     }
     else if(distance > 180) {
       
@@ -100,13 +101,13 @@ static void buzzerTask(void*) {
     
     int timeCopy = buzzerDelTime; // do czego służy timeCopy? nie da się tutaj użyć buzzerDelTime
 
-    if(timeCopy > 0) {
-      
+    if(timeCopy > 0)
       digitalWrite(buzzerPin, 1);
-      delay(100);
-      digitalWrite(buzzerPin, 0);
+
+    delay(100);
+    digitalWrite(buzzerPin, 0);
+    if(timeCopy > 0)
       delay(timeCopy);
-    }
   }
 }
 
@@ -145,4 +146,5 @@ void setup() {
 void loop() {
 
   mqtt.loop();
+  delay(100);
 }

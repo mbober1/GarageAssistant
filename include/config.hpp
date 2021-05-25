@@ -24,6 +24,6 @@ const gpio_num_t simpleLed = GPIO_NUM_25;
 
 //buzzer config
 const gpio_num_t buzzerPin = GPIO_NUM_32;
-int buzzerDelTime = -1;
+volatile int buzzerDelTime = -1;
 const uint continuousSignalThreshold = 80;  // 80%
 
